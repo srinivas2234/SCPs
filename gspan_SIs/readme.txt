@@ -14,7 +14,7 @@ e 2 8     ---------------------- indicates vertex between 2 and 8 index
 
 
 
-eg:
+eg :
 for a triangle each vertex has degree 2 as seen below. vertex ids are started frok 0 default and incremented by 1. 
 
          0
