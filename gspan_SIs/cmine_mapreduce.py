@@ -4,11 +4,6 @@ from string import atoi
 import time,sys
 from itertools import chain, combinations
 
-# import smtplib
-# from email.MIMEMultipart import MIMEMultipart
-# from email.MIMEText import MIMEText
-# from email.mime.text import MIMEText
-
 global t3
 global tot_cnt
 tot_cnt=0
@@ -41,24 +36,10 @@ def find_freqItems(data,nRows,minRF):
 	
 
 	reduced = mapping.reduceByKey(lambda x,y:x+y)
-	#frequent items
 	freqItems = reduced.filter(lambda x:x[1]>=minRF.value*nRows.value)
-	# freqItems = [x for (x,y) in sorted(singleItems.reduceByKey(lambda x,y: x+y).filter(lambda c: c[1]>=minRF.value * nRows.value).collect(), key=lambda x: -x[1])]
-	# for i in freqItems:
-		# print i
-	# print freqItems
 	return freqItems
 
-	# # convert transaction row into bitmap
-	# mapping = data.flatMap(lambda x: formatdata(x,nRows))
 	
-	# #reduce by key and get the final bitmap of each item
-	# reduced = mapping.reduceByKey(lambda x,y:addStrings(x,y,nRows))
-	
-	# #frequent items
-	# freqItems = reduced.filter(lambda x:x[1].count('1')>=minRF.value*nRows.value)
-	# return freqItems
-
 def generateCandidateSetOfLength2(data):
 	output = []
 	for i in range(0,len(data)):
@@ -168,25 +149,18 @@ def ParallelCmine(sc,inputFile,numPartitions):
 	
 	#Convert the TIDs of freq element to dict to access it easy
 	freqItemsWithOutBitmap = freqItemsWithOutBitmap.collectAsMap()
-	# print freqItemsWithOutBitmap
-
-	# data = data.collect()
-	# for i in data:
-	# 	print i
+	
 	
 	#broadcasting the TIDs of frequent Itmes
 	GlobalfreqItemsWithOutBitmap = sc.broadcast(freqItemsWithOutBitmap)
-	# Globaldata = sc.broadcast(data)
-	
+		
 	#get the candidateset from the freq itmes
 	candidateset = generateCandidateSetOfLength2(freqItems.collect())
 
 	#tot_cnt=tot_cnt+len(candidatese)
 
 	candidateset = sc.parallelize(candidateset,numPartitions)
-	# Globalcandidateset = sc.broadcast(candidateset)
-	# print GlobalfreqItemsWithBitmap.value
-	# count = 0
+	
 	size = 2
 	while True:
 		if candidateset.isEmpty():
@@ -196,35 +170,28 @@ def ParallelCmine(sc,inputFile,numPartitions):
 
 		candidateset = candidateset.collect()
 		tot_cnt=tot_cnt+len(candidateset)
-		# data1 = sc.textFile(inputFile,numPartitions)
+		
 		temp = data2.flatMap(lambda x:mapper(x,candidateset))
-		# temp = data2.flatMap(lambda x:candidateset.flatMap(lambda y:mapper1(x,y)))
-		# temp = data1.map(lambda x:mapper(x,candidateset))
+		
 		temp = temp.reduceByKey(lambda x,y:addvalues(x,y))
 
-		# temp.collect();
+		
 		temp = temp.map(lambda x:check(x,GlobalfreqItemsWithOutBitmap,nRows,minCS,maxOR,candidateset))
-		# temp = check(candidateset,inputFile,GlobalfreqItemsWithOutBitmap,nRows,minCS,maxOR,numPartitions)
+		
 		coveragePatterns = temp.filter(lambda x:x[1]>=1).map(lambda x:[x[0], x[1]])
-		# print coveragePatterns.count()
+		
 		NO = temp.filter(lambda x:x[1]!=-1).map(lambda x:x[0])
 
 		output = output.union(coveragePatterns)
 		candidateset = generateCandidateSet(NO)
 
-		# NO = NO.collect()
-
+		
 		t5 = time.time()
-		#print "size",size,t5-t4
+		
 		t4 = t5
 		size += 1
 
-		# candidateset = candidateset.collectAsMap()
 		
-	# output.saveAsTextFile(outputFolder)
-	# print output.count()
-	# for i in output.collect():
-	# 	print i
 	return output.collect()
 
 
@@ -236,8 +203,7 @@ if __name__ == "__main__":
 	APP_NAME = "Parallel-Cmine"
 
 	conf = SparkConf().setAppName(APP_NAME)
-	# conf = conf.setMaster("local[*]")
-
+	
 	sc = SparkContext(conf=conf)
 	
 	inputFile = sys.argv[5]
@@ -256,26 +222,11 @@ if __name__ == "__main__":
 	t1 = time.time()
 	output = ParallelCmine(sc,inputFile,numPartitions)
 	t2 = time.time()
-	#print str(t2-t1)
+	
 
 	count = len(output)
 	fout = open(sys.argv[7], 'a')
-	# outfile = "./outputs/"+data+"/"+data+"_"+str(minrf)+"_"+str(mincs)+"_"+str(maxor)+"_"+str(numPartitions)+".txt"
-	# thefile = open(outfile, 'w')
-	# # some = str()+str(sys.argv[1])+str(sys.argv[2])+str(sys.argv[3])+str(sys.argv[4])+str(sys.argv[5])+str(count)+str(t2-t1)
-	# thefile.write("%s\n" %sys.argv[0])
-	# thefile.write("%s\n" %sys.argv[1])
-	# thefile.write("%s\n" %sys.argv[2])
-	# thefile.write("%s\n" %sys.argv[3])
-	# thefile.write("%s\n" %sys.argv[4])
-	# thefile.write("%s\n" %sys.argv[5])
-	# thefile.write("%s\n" %count)
-	# thefile.write("%s\n" %(t2-t1))
-	#for item in output:
-	#	fout.write("%s\n" % item)
-	#fout.close()
+	
 	fout.write("cmine_mapreduce"+","+str(minrf)+","+str(mincs)+","+str(maxor)+","+str(numPartitions)+","+str(len(output))+","+inputFile+","+str(t3-t1)+","+str(t2-t1)+",total_patterns: "+str(tot_cnt)+"\n")
 	fout.close()
-	# excel = open("./"+data+"_mapreduce.csv",'a')
-	# excel.write("cmine_mapreduce"+","+str(minrf)+","+str(mincs)+","+str(maxor)+","+str(numPartitions)+","+inputFile+","+outfile+","+str(t3-t1)+","+str(t2-t1)+"\n")
-	# excel.close()
+	
