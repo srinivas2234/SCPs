@@ -270,16 +270,8 @@ class gSpan(object):
 
         
         fk.write('Exec time:\t{} s'.format(time_deltas['run']))
-        # fk.write('Avg tra size')
-
         fk.write("\n")
         
-
-
-        # print('Read:\t{} s'.format(time_deltas['_read_graphs']))
-        # print('Mine:\t{} s'.format(
-        #     time_deltas['run'] - time_deltas['_read_graphs']))
-        # print('Total:\t{} s'.format(time_deltas['run']))
 
         return self
 
@@ -459,10 +451,9 @@ class gSpan(object):
             for i in list_of_gids:
                 flis3[i].append(arr)
             
-        # if(flag==len(vert) ):
+        
             display_str = g.display()
-        #     print('\nSupport: {}'.format(self._support))
-
+       
         # Add some report info to pandas dataframe "self._report_df".
             self._report_df = self._report_df.append(
                 pd.DataFrame(
@@ -478,7 +469,7 @@ class gSpan(object):
                 g.plot()
             if self._where:
                 print('where: {}'.format(list(set([p.gid for p in projected]))))
-            # print('\n-----------------\n')
+            
         
     def _get_forward_root_edges(self, g, frm):
         result = []
@@ -506,9 +497,7 @@ class gSpan(object):
                         g.vertices[e1.frm].vlb == g.vertices[e2.to].vlb and
                         e1.elb <= e.elb):
                     return e
-            # if e1.elb < e.elb or (e1.elb == e.elb and
-            #     g.vertices[e1.to].vlb <= g.vertices[e2.to].vlb):
-            #     return e
+           
         return None
 
     def _get_forward_pure_edges(self, g, rm_edge, min_vlb, history):
