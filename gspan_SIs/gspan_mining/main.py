@@ -83,9 +83,6 @@ def main(FLAGS=None):
         sys.exit()
     si_vert,si_ne,no_of_edges=read_si()
     for i in range(1,(len(si_vert)+1)):
-        # print("kjjjjas",i)
-        # print(len(si_vert[i]))
-        # print("asa",min_sup)
         min_no=len(si_vert[i])
         max_no=len(si_vert[i])
         gs = gSpan(
@@ -128,17 +125,7 @@ def main(FLAGS=None):
         f1.write("\n")
         
     f1.close()
-    # f=open(str(si)+"_"+str(p)+"_"+str(s)+"_stats.txt",'w')
-    
-    # print(nsg,file=f)
-    # df=sorted(flis2)
-    # fg=open(str(si)+"_"+str(p)+"_"+str(s)+"si_subgraphsId.txt",'w')
-    # for i in df:
-    #     fg.write(str(i))
-    #     fg.write(": ")
-    #     fg.write(str(flis2[i])[1:-1])
-    #     fg.write("\n")
-    # fg.close()
+   
     avg=sum/graph_cnt
     fk.write("avg size of transaction: ")
     fk.write(str(avg))
